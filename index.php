@@ -1,4 +1,5 @@
 <?php
+session_start();
 include("functions.php");
 $no_result   = false;
 
@@ -10,6 +11,15 @@ $imageDirs = [];
 $tableauimage = array();
 
 $selectDir = isset($_GET['dir']) ? $_GET['dir'] : null;
+//if(isset($_GET['date'])){
+//    $selectDir = $_GET['date'];
+//    $_SESSION['dir']=$selectDir;
+//}elseif(isset($_SESSION['dir'])){
+//    $selectDir = $_SESSION['dir'];
+//}
+//if(isset($_GET['date'])){
+//    $selectDir=null;
+//}
 
 foreach ($image_dir_iterator as $file) {
     if ($file->isDir()) {
@@ -26,9 +36,9 @@ if ($selectDir != null) {
         }
     }
 }
-if (isset($_POST['date'])) {
+if (isset($_GET['date'])) {
 
-    $date        = date("d-m-Y", strtotime($_POST['date']));
+    $date        = date("d-m-Y", strtotime($_GET['date']));
     $tabFiltered = [];
     foreach ($imageDirs as $dir) {
         if (preg_match('/' . $date . '/', $dir) != 0) {
@@ -36,11 +46,11 @@ if (isset($_POST['date'])) {
         }
     }
 
-    if (sizeof($tabFiltered) == 0 && isset($_POST['date']) && !empty($_POST['date'])) {
+    if (sizeof($tabFiltered) == 0 && isset($_GET['date']) && !empty($_GET['date'])) {
         $no_result = true;
     } else {
         $no_result    = false;
-        if (isset($_POST['date']) && !empty($_POST['date'])) {
+        if (isset($_GET['date']) && !empty($_GET['date'])) {
             $imageDirs = $tabFiltered;
         }
     }
@@ -91,8 +101,8 @@ if (isset($_POST['date'])) {
 <!--                    <a class="nav-link disabled" href="#">Disabled</a>-->
 <!--                </li>-->
             </ul>
-            <form class="form-inline mt-2 mt-md-0" method="post">
-                <input class="form-control mr-sm-2" type="date" value="<?php if (isset($_POST['date'])) {echo $_POST['date'];}?>"
+            <form class="form-inline mt-2 mt-md-0" method="get" action="index.php">
+                <input class="form-control mr-sm-2" type="date" value="<?php if (isset($_GET['date'])) {echo $_GET['date'];}?>"
                        name="date" placeholder="Search" aria-label="Search">
                 <input type="submit" value="Recherche">
             </form>
@@ -116,7 +126,7 @@ if (isset($_POST['date'])) {
                         <a href="#" class="list-group-item list-group-item-action disabled">Pas de Résultat</a>
                     <?php } else {?>
                     <?php foreach ($imageDirs as $imageDir) {?>
-                        <a href="index.php?dir=<?php echo $imageDir; ?>"
+                        <a href="index.php?dir=<?php echo $imageDir; if(isset($_GET['date'])) echo '&date='.$_GET['date'];?>"
                            class="list-group-item list-group-item-action <?php if($selectDir == $imageDir) echo 'active'; ?>">
                             <?php echo $imageDir; ?>
                         </a>
@@ -130,7 +140,7 @@ if (isset($_POST['date'])) {
                     <div class="row">
                         <?php
                             foreach ($tableauimage as $dir) {?>
-                                <div class="col-xs-12 col-md-2">
+                                <div class="col-xs-12 col-md-3">
                                     <div class="card">
                                         <img src="<?php echo $web_path.$selectDir.'/'.$dir; ?> " width=100% alt=""
                                              class="card-img-top imageViewer"
